@@ -1,7 +1,7 @@
 package org.example.common.exception
 
 import org.example.common.types.Response
-import org.example.common.types.ResponseBuilder
+import org.example.common.types.ResponseProvider
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpRequestMethodNotSupportedException
@@ -19,7 +19,7 @@ class ExceptionAdvice {
     fun handleMethodArgumentTypeMismatch(ex: MethodArgumentTypeMismatchException): Response<Any> {
         val msg = "Invalid value for parameter '" + ex.name
 
-        return ResponseBuilder.error(HttpStatus.BAD_REQUEST, msg)
+        return ResponseProvider.error(HttpStatus.BAD_REQUEST, msg)
     }
 
     @ExceptionHandler(CustomException::class)
@@ -29,7 +29,7 @@ class ExceptionAdvice {
         val msg = codeInterface.message
         val code = codeInterface.code
 
-        return ResponseBuilder.customError(code, msg)
+        return ResponseProvider.customError(code, msg)
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
@@ -37,7 +37,7 @@ class ExceptionAdvice {
     fun handleMethodNotSupported(ex: HttpRequestMethodNotSupportedException): Response<Any> {
         val msg = "Method '${ex.method}' not supported. Supported methods: ${ex.supportedHttpMethods}"
 
-        return ResponseBuilder.error(HttpStatus.BAD_REQUEST, msg)
+        return ResponseProvider.error(HttpStatus.BAD_REQUEST, msg)
     }
 
 }

@@ -2,7 +2,7 @@ package org.example.common.types
 
 import org.springframework.http.HttpStatus
 
-object ResponseBuilder {
+object ResponseProvider {
     fun <T> success(result: T): Response<T> {
         return Response(HttpStatus.OK.value(), SUCCESS, result)
     }

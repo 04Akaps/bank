@@ -20,5 +20,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("org.slf4j:slf4j-api:1.7.32")
 
+    // jwt
+    implementation("com.auth0:java-jwt:3.12.0")
+
     testImplementation(kotlin("test"))
 }
