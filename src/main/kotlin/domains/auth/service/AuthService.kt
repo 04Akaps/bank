@@ -5,7 +5,10 @@ import org.springframework.stereotype.Service
 import org.slf4j.Logger
 
 @Service
-class AuthService {
+class AuthService() {
+
+
+
 
     companion object {
         private val logger: Logger = Logging.getLogger(AuthService::class.java)

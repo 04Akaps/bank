@@ -25,10 +25,7 @@ dependencies {
     implementation("com.auth0:java-jwt:3.12.0")
 
     // oAuth2
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-
+//    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     testImplementation(kotlin("test"))
 }
