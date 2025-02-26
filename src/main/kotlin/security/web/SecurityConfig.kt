@@ -4,8 +4,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import java.lang.Compiler.disable
 
 @Configuration
 @EnableWebSecurity
@@ -26,14 +31,18 @@ class SecurityConfig {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .csrf().disable()
+            .csrf { it.disable() }
+            .formLogin { it.disable() }
+            .httpBasic { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .cors { }
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(*PUBLIC_ENDPOINT).permitAll()
                     .requestMatchers(*JWT_AUTH_ENDPOINT).authenticated()
-                    .anyRequest().permitAll() // 나머지는 일단 허용
+                    .anyRequest().denyAll()
             }
-            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter::class.java) // JWT 필터 추가 -> user 기반 인증 객체 앞에서 동작하게 작성
+            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }
@@ -41,5 +50,16 @@ class SecurityConfig {
     @Bean
     fun jwtFilter() : JWTFilter {
         return JWTFilter()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val config = CorsConfiguration()
+        config.allowedOrigins = listOf("*") // 실제 도메인으로 변경
+        config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+        config.allowedHeaders = listOf("*")
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return source
     }
 }
