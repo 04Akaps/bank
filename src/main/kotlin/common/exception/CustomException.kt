@@ -7,7 +7,11 @@ class CustomException(
     private val codeInterface: CodeInterface,
     private val additionalMessage: String? = null,
 ) : RuntimeException(
-    "${ codeInterface.message}-${additionalMessage}"
+    if (additionalMessage == null) {
+        codeInterface.message
+    } else {
+        "${codeInterface.message} - $additionalMessage"
+    }
 ) {
     init {
         logger.error("Exception created with code: ${codeInterface.code} and message: ${super.message}")

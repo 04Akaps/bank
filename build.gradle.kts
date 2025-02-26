@@ -5,7 +5,7 @@ plugins {
 
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
 
-//    kotlin("plugin.serialization") version "1.8.0"/**/
+    kotlin("plugin.serialization") version "1.8.0"/**/
 }
 
 
@@ -17,19 +17,17 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.2.3")
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.2.3")
     implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("org.slf4j:slf4j-api:1.7.32")
-    implementation("ch.qos.logback:logback-classic:1.2.10")
 
     // jwt
     implementation("com.auth0:java-jwt:3.12.0")
 
     // security
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-security")
+//    implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")
 
     testImplementation(kotlin("test"))
 }
