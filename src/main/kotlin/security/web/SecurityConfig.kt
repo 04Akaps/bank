@@ -1,5 +1,6 @@
 package org.example.security.web
 
+import org.example.security.jwt.JwtProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -10,11 +11,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import java.lang.Compiler.disable
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(private val jwtProvider: JwtProvider) {
 
 
     // 인증 불필요 router
@@ -49,7 +49,7 @@ class SecurityConfig {
 
     @Bean
     fun jwtFilter() : JWTFilter {
-        return JWTFilter()
+        return JWTFilter(jwtProvider)
     }
 
     @Bean
