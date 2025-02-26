@@ -1,10 +1,13 @@
 plugins {
     id("org.springframework.boot") version "3.0.0"
-    id("io.spring.dependency-management") version "1.0.15.RELEASE"
-    kotlin("plugin.spring") version "1.8.0"
-    kotlin("plugin.serialization") version "1.8.0"
     kotlin("jvm") version "2.0.21"
+    kotlin("plugin.spring") version "1.8.0"
+
+    id("io.spring.dependency-management") version "1.0.15.RELEASE"
+
+//    kotlin("plugin.serialization") version "1.8.0"/**/
 }
+
 
 group = "org.example"
 version = "1.0-SNAPSHOT"
@@ -24,8 +27,9 @@ dependencies {
     // jwt
     implementation("com.auth0:java-jwt:3.12.0")
 
-    // oAuth2
-//    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    // security
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
     testImplementation(kotlin("test"))
 }
