@@ -5,9 +5,9 @@ import org.slf4j.Logger
 import org.springframework.stereotype.Service
 
 @Service
-class TransferService {
+class BankService {
 
     companion object {
-        private val logger: Logger = Logging.getLogger(TransferService::class.java)
+        private val logger: Logger = Logging.getLogger(BankService::class.java)
     }
 }

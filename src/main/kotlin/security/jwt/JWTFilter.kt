@@ -1,14 +1,15 @@
-package org.example.security.web
+package org.example.security.jwt
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.example.common.exception.CustomException
 import org.example.common.exception.ErrorCode
-import org.example.security.jwt.JwtProvider
+import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import kotlin.jvm.Throws
 
+@Component
 class JWTFilter(
     private val jwtProvider: JwtProvider,
 ) : OncePerRequestFilter() {

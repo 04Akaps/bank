@@ -19,4 +19,12 @@ class AuthController(private val authService: GoogleAuthService) {
         val userInfo = authService.getGoogleUserInfo(googleToken.accessToken)
         println(userInfo)
     }
+
+
+    @GetMapping("/verify-token")
+    fun verifyToken(
+        @RequestParam("token") token: String
+    ){
+
+    }
 }

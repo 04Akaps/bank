@@ -1,6 +1,6 @@
 package org.example.security.web
 
-import org.example.security.jwt.JwtProvider
+import org.example.security.jwt.JWTFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -14,7 +14,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(private val jwtProvider: JwtProvider) {
+class SecurityConfig(private val jwtFilter: JWTFilter) {
 
 
     // 인증 불필요 router
@@ -24,8 +24,8 @@ class SecurityConfig(private val jwtProvider: JwtProvider) {
 
     // 인증 필요 router
     private val JWT_AUTH_ENDPOINT = arrayOf(
-        "/api/v1/auth/refresh-token",
-        "/api/v1/histor/**"
+        "/api/v1/bank/**",
+        "/api/v1/history/**"
     )
 
     @Bean
@@ -42,14 +42,9 @@ class SecurityConfig(private val jwtProvider: JwtProvider) {
                     .requestMatchers(*JWT_AUTH_ENDPOINT).authenticated()
                     .anyRequest().denyAll()
             }
-            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
-    }
-
-    @Bean
-    fun jwtFilter() : JWTFilter {
-        return JWTFilter(jwtProvider)
     }
 
     @Bean
