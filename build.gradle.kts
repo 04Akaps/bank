@@ -5,7 +5,7 @@ plugins {
 
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
 
-    kotlin("plugin.serialization") version "1.8.0"/**/
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 
@@ -27,7 +27,7 @@ dependencies {
 
     // security
     implementation("org.springframework.boot:spring-boot-starter-web")
-//    implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")
+    implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")
 
     testImplementation(kotlin("test"))
 }
