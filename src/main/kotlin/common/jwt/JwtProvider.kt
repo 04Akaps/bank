@@ -32,6 +32,14 @@ class JwtProvider {
             .sign(Algorithm.HMAC256(secretKey))
     }
 
+    fun createToken(email: String, name : String, id : String) : String {
+        return JWT.create()
+            .withSubject("$email - $name - $id")
+            .withIssuedAt(Date())
+            .withExpiresAt(Date(System.currentTimeMillis() + tokenTimeForMinute * ONE_MINUTE_TO_MILLIS))
+            .sign(Algorithm.HMAC256(secretKey))
+    }
+
     fun decodeAccessTokenAfterVerifying(token: String): DecodedJWT {
         return decodeTokenAfterVerifying(token, secretKey)
     }

@@ -12,4 +12,8 @@ enum class ErrorCode(
     ACCESS_TOKEN_IS_NOT_EXPIRED(-202, "Access token is not expired"),
     ACCESS_TOKEN_NEED(-203, "Access token need"),
     NOT_SUPPORTED_ROUTER(-204, "Not implemented"),
+
+    AUTH_STATE_NOT_SUPPORTED(-300, "Auth state not supported"),
+    GET_GOOGLE_TOKEN(-301, "Failed to get google token"),
+    GET_GOOGLE_USER_INFO(-302, "Failed to get google user info")
 }
