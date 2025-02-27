@@ -29,5 +29,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")
 
+    // redis
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
     testImplementation(kotlin("test"))
 }
