@@ -32,7 +32,7 @@ class JwtProvider {
             .sign(Algorithm.HMAC256(secretKey))
     }
 
-    fun createToken(email: String, name : String, id : String) : String {
+    fun createToken(platform : String, email: String?, name : String?, id : String?) : String {
         return JWT.create()
             .withSubject("$email - $name - $id")
             .withIssuedAt(Date())

@@ -4,32 +4,29 @@ import org.example.common.exception.CustomException
 import org.example.common.exception.ErrorCode
 import org.example.common.jwt.JwtProvider
 import org.example.common.logger.Logging
+import org.example.interfaces.OAuthService
 import org.springframework.stereotype.Service
 import org.slf4j.Logger
 
 @Service
 class AuthService(
     private val jwtProvider: JwtProvider,
-    private val googleAuthService: GoogleAuthService
+    private val oAuth2Services: Map<String, OAuthService>
 ) {
 
     fun handleAuth(state : String, code : String) : String = Logging.loggingStopWatch(logger) { log ->
         log["state"] = state
         log["code"] = code
 
-        var token  = ""
+        val provider = state.lowercase()
+        val oAuthService = oAuth2Services[provider]
+            ?: throw CustomException(ErrorCode.AUTH_STATE_NOT_SUPPORTED, "Unsupported provider: $provider")
 
-        when (state.lowercase()) {
-            "google" -> {
-                val googleToken = googleAuthService.getGoogleToken(code)
-                val userInfo = googleAuthService.getGoogleUserInfo(googleToken.accessToken)
+        val accessToken = oAuthService.getToken(code)
+        val userInfo = oAuthService.getUserInfo(accessToken.accessToken)
 
-                token = jwtProvider.createToken(userInfo.email, userInfo.name, userInfo.id)
-            } else ->  {
-                throw CustomException(ErrorCode.AUTH_STATE_NOT_SUPPORTED, "$state, $code")
-            }
-        }
 
+        val token = jwtProvider.createToken(provider, userInfo.email, userInfo.name, userInfo.id)
 
         return@loggingStopWatch token
     }

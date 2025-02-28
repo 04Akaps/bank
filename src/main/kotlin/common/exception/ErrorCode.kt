@@ -14,6 +14,12 @@ enum class ErrorCode(
     NOT_SUPPORTED_ROUTER(-204, "Not implemented"),
 
     AUTH_STATE_NOT_SUPPORTED(-300, "Auth state not supported"),
+
     GET_GOOGLE_TOKEN(-301, "Failed to get google token"),
-    GET_GOOGLE_USER_INFO(-302, "Failed to get google user info")
+    GET_GOOGLE_USER_INFO(-302, "Failed to get google user info"),
+    GOOGLE_AUTH_CONFIG_NOT_FOUND(-303, "Google OAuth config not found"),
+    GET_GITHUB_TOKEN(-304, "Failed to get github token"),
+    GET_GITHUB_USER_INFO(-305, "Failed to get github user information"),
+    GITHUB_AUTH_CONFIG_NOT_FOUND(-306, "GitHub Auth config not found"),
+
 }
