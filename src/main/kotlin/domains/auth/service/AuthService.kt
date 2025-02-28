@@ -15,10 +15,12 @@ class AuthService(
 ) {
 
     fun handleAuth(state : String, code : String) : String = Logging.loggingStopWatch(logger) { log ->
+        val provider = state.lowercase()
+
+        log["provider"] = provider
         log["state"] = state
         log["code"] = code
 
-        val provider = state.lowercase()
         val oAuthService = oAuth2Services[provider]
             ?: throw CustomException(ErrorCode.AUTH_STATE_NOT_SUPPORTED, "Unsupported provider: $provider")
 
@@ -29,6 +31,11 @@ class AuthService(
         val token = jwtProvider.createToken(provider, userInfo.email, userInfo.name, userInfo.id)
 
         return@loggingStopWatch token
+    }
+
+    @Throws(CustomException::class)
+    fun verifyToken(token : String)  {
+        jwtProvider.decodeAccessTokenAfterVerifying(token)
     }
 
 

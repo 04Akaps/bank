@@ -43,8 +43,8 @@ class AuthController(
 
     @GetMapping("/verify-token")
     fun verifyToken(
-        @RequestParam("token") token: String
+        @RequestParam("token", required = true) token: String
     ){
-
+        authService.verifyToken(token)
     }
 }
