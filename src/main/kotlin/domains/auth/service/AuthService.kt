@@ -27,15 +27,14 @@ class AuthService(
         val accessToken = oAuthService.getToken(code)
         val userInfo = oAuthService.getUserInfo(accessToken.accessToken)
 
-
         val token = jwtProvider.createToken(provider, userInfo.email, userInfo.name, userInfo.id)
 
         return@loggingStopWatch token
     }
 
     @Throws(CustomException::class)
-    fun verifyToken(token : String)  {
-        jwtProvider.decodeAccessTokenAfterVerifying(token)
+    fun verifyToken(authorization : String)  {
+        jwtProvider.decodeAccessTokenAfterVerifying(authorization.removePrefix("Bearer "))
     }
 
 

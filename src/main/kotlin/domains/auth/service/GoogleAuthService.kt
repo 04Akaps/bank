@@ -8,10 +8,12 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import okhttp3.FormBody
+import org.example.common.JsonUtil.JsonUtil
+import org.example.common.httpClinet.CallClient
 import org.example.interfaces.OAuth2TokenResponse
 import org.example.interfaces.OAuth2UserResponse
 import org.example.interfaces.OAuthService
@@ -20,47 +22,40 @@ private const val key = "google"
 
 @Service(key)
 class GoogleAuthService(
-    private val oAuth2Config: OAuth2Config
+    private val oAuth2Config: OAuth2Config,
+    private val httpClient: CallClient
 ) : OAuthService{
     private val googleOAuth = oAuth2Config.providers[key] ?: throw CustomException(ErrorCode.GOOGLE_AUTH_CONFIG_NOT_FOUND)
     override val providerName: String = key
 
-    override fun getToken(code: String): GoogleTokenResponse {
-        val restTemplate = RestTemplate()
+    override fun getToken(code : String): GoogleTokenResponse {
+        val formBody = FormBody.Builder()
+            .add("code", code)
+            .add("client_id", googleOAuth.clientId)
+            .add("client_secret", googleOAuth.clientSecret)
+            .add("redirect_uri", googleOAuth.redirectUri)
+            .add("grant_type", "authorization_code")
+            .build()
 
-        val request = LinkedMultiValueMap<String, String>().apply {
-            add("code", code)
-            add("client_id", googleOAuth.clientId)
-            add("client_secret", googleOAuth.clientSecret)
-            add("redirect_uri", googleOAuth.redirectUri)
-            add("grant_type", "authorization_code")
-        }
+        val headers = mapOf("Accept" to "application/json")
+        val jsonString = httpClient.POST(tokenURL, headers, formBody)
 
-        val response = restTemplate.postForEntity(
-            tokenURL,
-            HttpEntity(request, HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }),
-            GoogleTokenResponse::class.java
-        )
+        val response = JsonUtil.decodeFromJson(jsonString, GoogleTokenResponse.serializer())
 
-        return response.body ?: throw CustomException(ErrorCode.GET_GOOGLE_TOKEN)
+        return response
     }
 
     override fun getUserInfo(accessToken: String): GoogleUserResponse {
-        val restTemplate = RestTemplate()
-
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.APPLICATION_JSON
-            setBearerAuth(accessToken)
-        }
-
-        val response = restTemplate.exchange(
-            userInfoURL,
-            HttpMethod.GET,
-            HttpEntity(null, headers),
-            GoogleUserResponse::class.java
+        val headers = mapOf(
+            "Content-Type" to "application/json",
+            "Authorization" to "Bearer $accessToken"
         )
 
-        return response.body ?: throw CustomException(ErrorCode.GET_GOOGLE_USER_INFO)
+        val jsonString = httpClient.GET(userInfoURL, headers)
+
+        val userResponse = JsonUtil.decodeFromJson(jsonString, GoogleUserResponse.serializer())
+
+        return userResponse
     }
 
     companion object {

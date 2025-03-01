@@ -1,75 +1,61 @@
 package org.example.domains.auth.service
 
-
-
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.serialization.SerialName
 import org.example.common.exception.CustomException
 import org.example.common.exception.ErrorCode
 import org.example.config.OAuth2Config
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.RestTemplate
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
-import org.example.interfaces.OAuth2TokenResponse
 import org.example.interfaces.OAuth2UserResponse
+import org.example.interfaces.OAuth2TokenResponse
 import org.example.interfaces.OAuthService
+import okhttp3.*
+import org.example.common.JsonUtil.JsonUtil
+import org.example.common.httpClinet.CallClient
 
 private const val key = "github"
 
 @Service(key)
 class GithubAuthService (
-    private val oAuth2Config: OAuth2Config
+    private val oAuth2Config: OAuth2Config,
+    private val httpClient: CallClient
 ) : OAuthService {
 
     private val githubOAuth = oAuth2Config.providers[key] ?: throw CustomException(ErrorCode.GITHUB_AUTH_CONFIG_NOT_FOUND)
     override val providerName: String = key
 
-    override fun getToken(code: String): GitHubTokenResponse {
-        val restTemplate = RestTemplate()
+    override fun getToken(code: String): OAuth2TokenResponse {
+        val formBody = FormBody.Builder()
+            .add("code", code)
+            .add("client_id", githubOAuth.clientId)
+            .add("client_secret", githubOAuth.clientSecret)
+            .add("redirect_uri", githubOAuth.redirectUri)
+            .add("grant_type", "authorization_code")
+            .build()
 
-        val request = LinkedMultiValueMap<String, String>().apply {
-            add("code", code)
-            add("client_id", githubOAuth.clientId)
-            add("client_secret", githubOAuth.clientSecret)
-            add("redirect_uri", githubOAuth.redirectUri)
-            add("grant_type", "authorization_code")
-        }
+        val headers = mapOf("Accept" to "application/json")
+        val jsonString = httpClient.POST(tokenURL, headers, formBody)
 
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.APPLICATION_FORM_URLENCODED
-            accept = listOf(MediaType.APPLICATION_JSON) // GitHub는 JSON 응답을 지원
-        }
+        val response = JsonUtil.decodeFromJson(jsonString, GitHubTokenResponse.serializer())
 
-        val response = restTemplate.postForEntity(
-            tokenURL,
-            HttpEntity(request, headers),
-            GitHubTokenResponse::class.java
-        )
-
-        return response.body ?: throw CustomException(ErrorCode.GET_GITHUB_TOKEN)
+        return response
     }
 
     override fun getUserInfo(accessToken: String): OAuth2UserResponse {
-        val restTemplate = RestTemplate()
-
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.APPLICATION_JSON
-            setBearerAuth(accessToken)
-        }
-
-        val response = restTemplate.exchange(
-            userInfoURL,
-            HttpMethod.GET,
-            HttpEntity(null, headers),
-            GitHubUserResponse::class.java
+        val headers = mapOf(
+            "Content-Type" to "application/json",
+            "Authorization" to "Bearer $accessToken"
         )
 
-        return response.body?.toOAuth2UserResponse()
-            ?: throw CustomException(ErrorCode.GET_GITHUB_USER_INFO)
+        val jsonString = httpClient.GET(userInfoURL, headers)
+
+
+        val userResponse = JsonUtil.decodeFromJson(jsonString, GitHubUserResponse.serializer())
+
+        return userResponse.toOAuth2UserResponse()
     }
 
     companion object {
@@ -81,20 +67,23 @@ class GithubAuthService (
 @Serializable
 data class GitHubTokenResponse(
     @SerialName("access_token") override val accessToken: String,
-    @SerialName("scope") val scope: String,
-    @SerialName("token_type") val tokenType: String
+    @SerialName("expires_in") val expiresIn: Int? = null,
+    @SerialName("refresh_token") val refreshToken: String? = null,
+    @SerialName("scope") val scope: String? = null,
+    @SerialName("token_type") val tokenType: String? = null,
+    @SerialName("id_token") val idToken: String? = null
 ) : OAuth2TokenResponse
+
 
 @Serializable
 data class GitHubUserResponse(
     val id: Int,
-    val login: String,
-    val email: String?,
-    val name: String?,
+    val repos_url: String,
+    val name: String,
 ) {
     fun toOAuth2UserResponse() = OAuth2UserResponse(
         id = id.toString(),
-        email = email,
+        email = repos_url,
         name = name
     )
 }

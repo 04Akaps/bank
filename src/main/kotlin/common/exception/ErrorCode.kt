@@ -5,6 +5,8 @@ enum class ErrorCode(
     override var message : String
 ) : CodeInterface {
     FailedToLoggerInvoke(-100, "Failed to logger invoke"),
+    FailedToClientCall(-101, "Failed to client call"),
+    CALL_RESULT_BODY_NIL(-102, "Call result body"),
 
 
     TOKEN_IS_INVALID(-200, "Token is invalid"),

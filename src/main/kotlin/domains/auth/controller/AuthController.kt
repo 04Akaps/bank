@@ -6,6 +6,7 @@ import org.example.domains.auth.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -43,8 +44,9 @@ class AuthController(
 
     @GetMapping("/verify-token")
     fun verifyToken(
-        @RequestParam("token", required = true) token: String
+        @RequestHeader("Authorization", required = true) authorization: String,
     ){
-        authService.verifyToken(token)
+        // 문제 있다면 throw 되기 떄문에 그냥 검증만 진행
+        authService.verifyToken(authorization)
     }
 }
