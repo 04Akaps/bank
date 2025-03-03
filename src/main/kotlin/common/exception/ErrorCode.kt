@@ -24,4 +24,7 @@ enum class ErrorCode(
     GET_GITHUB_USER_INFO(-305, "Failed to get github user information"),
     GITHUB_AUTH_CONFIG_NOT_FOUND(-306, "GitHub Auth config not found"),
 
+
+    FailedToInvokeWithMutex(-400, "Failed to invoke with mutex"),
+
 }

@@ -2,6 +2,9 @@ package org.example.config
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
+import org.redisson.Redisson
+import org.redisson.api.RedissonClient
+import org.redisson.config.Config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -41,14 +44,14 @@ class RedisConfig {
     }
 
     @Bean
-    fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Objects> {
-        val template = RedisTemplate<String, Objects>()
+    fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, String> {
+        val template = RedisTemplate<String, String>()
 
         template.connectionFactory = connectionFactory
         template.keySerializer = StringRedisSerializer()
-        template.valueSerializer = Jackson2JsonRedisSerializer(Objects::class.java)
+        template.valueSerializer = Jackson2JsonRedisSerializer(String::class.java)
         template.hashKeySerializer = StringRedisSerializer()
-        template.hashValueSerializer = Jackson2JsonRedisSerializer(Objects::class.java)
+        template.hashValueSerializer = Jackson2JsonRedisSerializer(String::class.java)
         template.afterPropertiesSet()
 
         return template
@@ -59,6 +62,20 @@ class RedisConfig {
         @Value("\${database.redis.thread-pool:10}") poolSize: Int,
     ): CoroutineDispatcher {
         return Executors.newFixedThreadPool(poolSize).asCoroutineDispatcher()
+    }
+
+    @Bean
+    fun redissonClient(
+        @Value("\${database.redisson.host}") host: String,
+        @Value("\${database.redisson.timeout}") timeout: Int,
+        @Value("\${database.redisson.password}}") password: String?,
+    ): RedissonClient {
+        val config = Config()
+        config.useSingleServer()
+            .setAddress("redis://localhost:6379")
+            .setTimeout(timeout).password = password
+        // 필요 시 password, database 등 추가 설정
+        return Redisson.create(config)
     }
 
 }
