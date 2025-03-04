@@ -8,10 +8,11 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
 
-@ControllerAdvice
+@RestControllerAdvice
 class ExceptionAdvice {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
@@ -23,6 +24,7 @@ class ExceptionAdvice {
     }
 
     @ExceptionHandler(CustomException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     fun handleException(ex: CustomException): Response<Any> {
         val codeInterface = ex.getCodeInterface()
 

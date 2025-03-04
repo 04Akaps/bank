@@ -1,11 +1,13 @@
 package org.example.security.jwt
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.example.common.exception.CustomException
 import org.example.common.exception.ErrorCode
 import org.example.common.jwt.JwtProvider
+import org.example.common.types.ResponseProvider
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
@@ -37,8 +39,18 @@ class JWTFilter(
                 val token = authHeader.substring(7) // Bearer 이후의 값
                 isValidToken(token)
             } else {
-                val info = "$authHeader - ${request.requestURI}"
-                throw CustomException(ErrorCode.ACCESS_TOKEN_NEED, info)
+
+                response.status = HttpServletResponse.SC_UNAUTHORIZED
+                response.contentType = "application/json;charset=UTF-8"
+
+                val errorResponse = ResponseProvider.customError(
+                    code = ErrorCode.ACCESS_TOKEN_NEED.code,
+                    message = ErrorCode.ACCESS_TOKEN_NEED.message,
+                    null,
+                )
+
+                response.writer.write(ObjectMapper().writeValueAsString(errorResponse))
+                response.writer.flush()
             }
         }
 

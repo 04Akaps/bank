@@ -1,7 +1,9 @@
 package org.example.domains.transfer.controller
 
+import org.example.common.types.Response
 import org.example.domains.transfer.service.BankService
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -15,23 +17,23 @@ class BankController(
 
     @PostMapping("/create/{ulid}")
     fun createAccount(
-        @RequestParam("ulid", required = true) ulid: String,
-    ) {
-        bankService.createAccount(ulid)
+        @PathVariable("ulid", required = true) ulid: String,
+    ) : Response<String> {
+        return bankService.createAccount(ulid)
     }
 
     @GetMapping("/balance/{ulid}/{account_id}")
     fun balance(
-        @RequestParam("ulid", required = true) ulid: String,
-        @RequestParam("account_id", required = true) accountId: String,
+        @PathVariable("ulid", required = true) ulid: String,
+        @PathVariable("account_id", required = true) accountId: String,
     ) {
         bankService.balance(ulid, accountId)
     }
 
     @PostMapping("/remove/{ulid}/{account_id}")
     fun removeAccount(
-        @RequestParam("ulid", required = true) ulid: String,
-        @RequestParam("account_id", required = true) accountId: String,
+        @PathVariable("ulid", required = true) ulid: String,
+        @PathVariable("account_id", required = true) accountId: String,
     ) {
         bankService.removeAccount(ulid, accountId)
     }

@@ -27,4 +27,7 @@ enum class ErrorCode(
 
     FailedToInvokeWithMutex(-400, "Failed to invoke with mutex"),
 
+
+    FailedToFindUserByUlid(-500, "Failed to find user by id"),
+
 }
