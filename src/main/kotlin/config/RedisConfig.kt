@@ -8,6 +8,7 @@ import org.redisson.config.Config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
@@ -32,18 +33,19 @@ class RedisConfig {
         @Value("\${database.redis.timeout:10000}") timeout: Long
     ) : LettuceConnectionFactory {
         val config = RedisStandaloneConfiguration(host, port).apply {
-            password?.let { setPassword(RedisPassword.of(it)) } // 비밀번호가 있을 경우 설정
+            password?.let { setPassword(RedisPassword.of(it)) }
             setDatabase(database)
         }
 
         val clientConfig = LettuceClientConfiguration.builder()
-            .commandTimeout(Duration.ofMillis(timeout)) // 타임아웃 설정
+            .commandTimeout(Duration.ofMillis(timeout))
             .build()
 
         return LettuceConnectionFactory(config, clientConfig)
     }
 
     @Bean
+    @Primary
     fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, String> {
         val template = RedisTemplate<String, String>()
 
@@ -68,14 +70,21 @@ class RedisConfig {
     fun redissonClient(
         @Value("\${database.redisson.host}") host: String,
         @Value("\${database.redisson.timeout}") timeout: Int,
-        @Value("\${database.redisson.password}}") password: String?,
+        @Value("\${database.redisson.password:#{null}}") password: String?,
     ): RedissonClient {
         val config = Config()
-        config.useSingleServer()
-            .setAddress("redis://localhost:6379")
-            .setTimeout(timeout).password = password
-        // 필요 시 password, database 등 추가 설정
-        return Redisson.create(config)
+
+        val singleServerConfig = config.useSingleServer()
+            .setAddress(host)
+            .setTimeout(timeout)
+
+        if (!password.isNullOrBlank()) {
+            singleServerConfig.setPassword(password)
+        }
+
+        return Redisson.create(config).also {
+            println("Redisson server successfully set")
+        }
     }
 
 }
