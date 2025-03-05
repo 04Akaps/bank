@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.math.BigDecimal
 
 @RestController
 @RequestMapping("/api/v1/bank")
@@ -26,16 +27,16 @@ class BankController(
     fun balance(
         @PathVariable("ulid", required = true) ulid: String,
         @PathVariable("account_id", required = true) accountId: String,
-    ) {
-        bankService.balance(ulid, accountId)
+    ) : Response<BigDecimal>? {
+        return bankService.balance(ulid, accountId)
     }
 
     @PostMapping("/remove/{ulid}/{account_id}")
     fun removeAccount(
         @PathVariable("ulid", required = true) ulid: String,
         @PathVariable("account_id", required = true) accountId: String,
-    ) {
-        bankService.removeAccount(ulid, accountId)
+    )  : Response<String> {
+       return bankService.removeAccount(ulid, accountId)
     }
 
 }

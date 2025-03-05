@@ -13,6 +13,10 @@ class RedisClient (
     private val redissonClient: RedissonClient
 ) {
 
+    fun get(key : String) : String? {
+        return template.opsForValue().get(key)
+    }
+
     fun <T> get(
         key : String,
         kSerializer : (Any) -> T?
