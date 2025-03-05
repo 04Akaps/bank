@@ -2,6 +2,7 @@ package org.example.domains.transfer.service
 
 import com.github.f4b6a3.ulid.UlidCreator
 import org.example.common.cache.RedisClient
+import org.example.common.cache.RedisKeyProvider
 import org.example.common.exception.CustomException
 import org.example.common.exception.ErrorCode
 import org.example.common.logger.Logging
@@ -15,8 +16,8 @@ import org.example.domains.bank.repository.model.Account
 import org.slf4j.Logger
 import org.springframework.stereotype.Service
 import java.lang.Math.random
-
-//import java.lang.Math.random
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @Service
 class BankService(
@@ -26,42 +27,79 @@ class BankService(
     private val bankAccountRepository: BankAccountRepository
 ) {
 
-    fun createAccount(ulid : String) : Response<String>  = Logging.loggingStopWatch(logger) { it
+    fun createAccount(ulid : String) : Response<String> = Logging.loggingStopWatch(logger) { it
         it["ulid"] = ulid
 
-        // 굳이 분산락은 필요가 없어 보이기 떄문에 DB 처리만 진행
-
         txAdvice.run {
-            val user = userRepository.findByUlid(ulid)
+            val user = userRepository.findByUlid(ulid) ?: throw CustomException(ErrorCode.FailedToFindUserByUlid, ulid)
 
-            user?.let {
-                val userUlid = user.ulid
-                val ulid = UlidCreator.getUlid().toString()
-                val accountNumber = generateRandomAccountNumber()
+            val ulid = UlidCreator.getUlid().toString()
+            val accountNumber = generateRandomAccountNumber()
 
-                val account = Account(
-                    ulid = ulid,
-                    userUlid = userUlid,
-                    accountNumber = accountNumber,
-                )
+            val account = Account(
+                ulid = ulid,
+                userUlid = user.ulid,
+                accountNumber = accountNumber,
+            )
 
-                bankAccountRepository.save<Account>(account)
-            } ?: run {
-                throw CustomException(ErrorCode.FailedToFindUserByUlid, ulid)
+            try {
+                bankAccountRepository.save(account)
+            } catch (e : Exception) {
+                throw CustomException(ErrorCode.FailedToSaveAccount, e.toString())
             }
         }
 
         return@loggingStopWatch ResponseProvider.success("SUCCESS")
     }
 
-    fun balance(ulid : String, accountID : String) {
+    fun balance(ulid : String, accountID : String) : Response<BigDecimal>? = Logging.loggingStopWatch(logger) { it
+        it["ulid"] = ulid
+        it["accountID"] = accountID
 
+        return@loggingStopWatch txAdvice.readOnly {
+            val account = bankAccountRepository.findByUlid(accountID) ?: throw CustomException(ErrorCode.FailedToFindAccount, accountID)
+            if (account.userUlid != ulid) throw CustomException(ErrorCode.AccountNotOwnedByUser, "계좌 소유자가 아님")
+            ResponseProvider.success(account.balance)
+        }
     }
 
-    fun removeAccount(ulid : String, accountID : String) {
+    fun removeAccount(ulid : String, accountID : String) : Response<String> = Logging.loggingStopWatch(logger) { it
+        it["ulid"] = ulid
+        it["accountID"] = accountID
 
+        // transfer 경우에 대해서 동시성 처리를 위한 redis 분산 키 적용 --> 계좌 삭제 할 떄, 요청이 들어올 수도 있으니
+        redisClient.invokeWithMutex(RedisKeyProvider.bankMutexKey(ulid, accountID)) {
+            return@invokeWithMutex txAdvice.run {
+                val user = userRepository.findByUlid(ulid) ?: run {
+                    logger.warn("User not found for ulid: $ulid")
+                    throw CustomException(ErrorCode.FailedToFindUserByUlid, ulid)
+                }
+
+                val account = bankAccountRepository.findByUlid(accountID) ?: run {
+                    logger.warn("Account not found for accountID: $accountID")
+                    throw CustomException(ErrorCode.FailedToFindAccount, accountID)
+                }
+
+                if (account.userUlid != user.ulid) {
+                    logger.warn("Account $accountID does not belong to user $ulid")
+                    throw CustomException(ErrorCode.AccountNotOwnedByUser, "계좌 소유자가 아님")
+                } else if (account.balance.compareTo(BigDecimal.ZERO) != 0){
+                    logger.warn("Account $accountID has non-zero balance: ${account.balance}")
+                    throw CustomException(ErrorCode.NonZeroBalance, "계좌 잔액이 0이어야 삭제 가능")
+                }
+
+                val updatedAccount = account.copy(
+                    isDeleted = true,
+                    deletedAt = LocalDateTime.now(),
+                    updatedAt = LocalDateTime.now()
+                )
+
+                bankAccountRepository.save(updatedAccount)
+
+                ResponseProvider.success("SUCCESS")
+            }
+        }
     }
-
 
     private fun generateRandomAccountNumber(): String {
         val bankCode = "003"

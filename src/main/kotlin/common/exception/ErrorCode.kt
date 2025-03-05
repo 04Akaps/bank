@@ -29,5 +29,9 @@ enum class ErrorCode(
 
 
     FailedToFindUserByUlid(-500, "Failed to find user by id"),
+    FailedToSaveAccount(-501, "Failed to save account"),
+    FailedToFindAccount(-502, "Failed to find account"),
+    AccountNotOwnedByUser(-503, "Account not owned by user"),
+    NonZeroBalance(-504, "Non-zero balance"),
 
 }
