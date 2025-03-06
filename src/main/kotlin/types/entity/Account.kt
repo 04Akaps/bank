@@ -22,7 +22,7 @@ data class Account(
     val user: User,
 
     @Column(name = "balance", nullable = false, precision = 15, scale = 2)
-    val balance: BigDecimal = BigDecimal.ZERO,
+    var balance: BigDecimal = BigDecimal.ZERO,
 
     @Column(name = "account_number", length = 20, nullable = false, unique = true)
     val accountNumber: String,
@@ -34,7 +34,7 @@ data class Account(
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "deleted_at")
     val deletedAt: LocalDateTime? = null
