@@ -7,8 +7,8 @@ import org.example.common.jwt.JwtProvider
 import org.example.common.logger.Logging
 import org.example.common.transaction.TxAdvice
 import org.example.domains.auth.repository.AuthUserRepository
-import org.example.domains.auth.repository.model.User
 import org.example.interfaces.OAuthService
+import org.example.types.entity.User
 import org.springframework.stereotype.Service
 import org.slf4j.Logger
 

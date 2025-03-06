@@ -7,7 +7,7 @@ import java.math.BigDecimal
 class TransactionsService {
 
 
-    fun deposit(ulid: String, accountId: String, value: BigDecimal) {
+    fun deposit(fromUlid : String, fromAccountID: String, value: BigDecimal) {
 
     }
 

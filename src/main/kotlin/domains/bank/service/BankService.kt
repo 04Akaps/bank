@@ -9,10 +9,9 @@ import org.example.common.logger.Logging
 import org.example.common.transaction.TxAdvice
 import org.example.common.types.Response
 import org.example.common.types.ResponseProvider
-import org.example.domains.auth.repository.model.User
 import org.example.domains.bank.repository.BankAccountRepository
 import org.example.domains.bank.repository.BankUserRepository
-import org.example.domains.bank.repository.model.Account
+import org.example.types.entity.Account
 import org.slf4j.Logger
 import org.springframework.stereotype.Service
 import java.lang.Math.random
@@ -38,8 +37,8 @@ class BankService(
 
             val account = Account(
                 ulid = ulid,
-                userUlid = user.ulid,
-                accountNumber = accountNumber,
+                user = user,
+                accountNumber = accountNumber
             )
 
             try {
@@ -58,7 +57,7 @@ class BankService(
 
         return@loggingStopWatch txAdvice.readOnly {
             val account = bankAccountRepository.findByUlid(accountID) ?: throw CustomException(ErrorCode.FailedToFindAccount, accountID)
-            if (account.userUlid != ulid) throw CustomException(ErrorCode.AccountNotOwnedByUser, "계좌 소유자가 아님")
+            if (account.user.ulid != ulid) throw CustomException(ErrorCode.AccountNotOwnedByUser, "계좌 소유자가 아님")
             ResponseProvider.success(account.balance)
         }
     }
@@ -80,7 +79,7 @@ class BankService(
                     throw CustomException(ErrorCode.FailedToFindAccount, accountID)
                 }
 
-                if (account.userUlid != user.ulid) {
+                if (account.user.ulid != user.ulid) {
                     logger.warn("Account $accountID does not belong to user $ulid")
                     throw CustomException(ErrorCode.AccountNotOwnedByUser, "계좌 소유자가 아님")
                 } else if (account.balance.compareTo(BigDecimal.ZERO) != 0){

@@ -1,7 +1,7 @@
 package org.example.domains.auth.repository
 
 import io.lettuce.core.dynamic.annotation.Param
-import org.example.domains.auth.repository.model.User
+import org.example.types.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

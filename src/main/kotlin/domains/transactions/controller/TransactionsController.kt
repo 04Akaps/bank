@@ -15,7 +15,7 @@ class TransactionsController(
 
     @PostMapping("/deposit")
     fun deposit(@RequestBody(required = true) request: DepositRequest) {
-        transactionsService.deposit(request.ulid, request.accountId, request.value)
+        transactionsService.deposit(request.fromUlid, request.fromAccountId, request.value)
     }
 
     @PostMapping("/transfer")
