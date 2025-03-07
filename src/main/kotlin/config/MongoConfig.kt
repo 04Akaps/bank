@@ -24,9 +24,8 @@ enum class MongoTableCollector(
 @Configuration
 @EnableMongoAuditing
 class MongoConfig(
-    @Value("\${spring.data.mongo.url}") val url: String,
+    @Value("\${database.mongo.uri}") val url: String,
 ) {
-
     @Bean
     fun template(): HashMap<String, MongoTemplate> {
         val mapper = HashMap<String, MongoTemplate>(MongoTableCollector.entries.size)
