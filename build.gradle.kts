@@ -46,6 +46,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+    // mongoDB
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     // ulid
     implementation("com.github.f4b6a3:ulid-creator:5.2.3")
 

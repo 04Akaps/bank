@@ -30,6 +30,10 @@ class RedisClient (
         }
     }
 
+    fun setIfNotExists(key: String, value: String): Boolean {
+        return template.opsForValue().setIfAbsent(key, value) ?: false
+    }
+
     fun <T> invokeWithMutex(mutexKey: String, function : () -> T?) : T? {
         val lock = redissonClient.getLock(mutexKey)
 
@@ -42,7 +46,6 @@ class RedisClient (
             lock.unlock()
         }
 
-        return null
     }
 
 }

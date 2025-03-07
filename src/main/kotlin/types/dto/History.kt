@@ -1,4 +1,4 @@
-package org.example.domains.history.model
+package org.example.types.dto
 
 import kotlinx.serialization.Serializable
 import org.example.common.json.BigDecimalSerializer
@@ -8,9 +8,9 @@ import java.time.LocalDateTime
 
 @Serializable
 data class History(
-    val from : String,
+    val fromUlid : String,
     val fromUser : String,
-    val to : String,
+    val toUlid : String,
     val toUser : String,
 
     @Serializable(with = BigDecimalSerializer::class)
