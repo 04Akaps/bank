@@ -1,6 +1,9 @@
 package org.example.domains.history.repository
 
+import org.example.common.exception.CustomException
+import org.example.common.exception.ErrorCode
 import org.example.common.global.Global
+import org.example.config.MongoTableCollector
 import org.example.types.dto.History
 import org.example.types.entity.HistoryDoc
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -12,7 +15,7 @@ import org.springframework.data.domain.Sort
 
 @Repository
 class HistoryRepositoryCustom(
-    private val mongoTemplate: MongoTemplate,
+    private val template: HashMap<String, MongoTemplate>,
     private val historyUserRepository: HistoryUserRepository,
     private val global: Global
 ) {
@@ -30,8 +33,7 @@ class HistoryRepositoryCustom(
         query.fields().exclude("_id")
 
 
-        // TODO Collection Name
-        val result : List<HistoryDoc> = mongoTemplate.find(query, HistoryDoc::class.java)
+        val result : List<HistoryDoc> = template(MongoTableCollector.Bank).find(query, HistoryDoc::class.java)
 
         return result.map { doc ->
             val fromUser =  getUserName(doc.fromUlid)
@@ -53,5 +55,13 @@ class HistoryRepositoryCustom(
         }
 
         return userName
+    }
+
+    private fun template(c: MongoTableCollector) : MongoTemplate {
+        val table = template[c.table]
+
+        table?.let { return it }
+
+        throw CustomException(ErrorCode.FailedToFindTemplate)
     }
 }

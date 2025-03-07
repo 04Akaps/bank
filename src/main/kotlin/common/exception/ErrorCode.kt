@@ -7,7 +7,8 @@ enum class ErrorCode(
     FailedToLoggerInvoke(-100, "Failed to logger invoke"),
     FailedToClientCall(-101, "Failed to client call"),
     CALL_RESULT_BODY_NIL(-102, "Call result body"),
-
+    FailedToConnectMongo(-103, "Failed to connect mongo"),
+    FailedToFindTemplate(-104, "Failed to find template"),
 
     TOKEN_IS_INVALID(-200, "Token is invalid"),
     TOKEN_IS_EXPIRED(-201, "Token is expired"),
