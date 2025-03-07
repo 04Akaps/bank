@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface TransactionsAccountRepository : JpaRepository<Account, String> {
     fun findByUlidAndUser(ulid: String, user: User): Account?
+    fun findByAccountID(accountID: String): Account?
 }

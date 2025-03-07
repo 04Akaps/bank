@@ -33,5 +33,5 @@ enum class ErrorCode(
     FailedToFindAccount(-502, "Failed to find account"),
     AccountNotOwnedByUser(-503, "Account not owned by user"),
     NonZeroBalance(-504, "Non-zero balance"),
-
+    ValueAmountLimit(-505, "Value limit exceeded"),
 }

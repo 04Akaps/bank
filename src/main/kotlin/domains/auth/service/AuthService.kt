@@ -7,6 +7,7 @@ import org.example.common.jwt.JwtProvider
 import org.example.common.logger.Logging
 import org.example.common.transaction.TxAdvice
 import org.example.domains.auth.repository.AuthUserRepository
+import org.example.domains.transfer.service.BankService
 import org.example.interfaces.OAuthService
 import org.example.types.entity.User
 import org.springframework.stereotype.Service
@@ -20,6 +21,7 @@ class AuthService(
     private val oAuth2Services: Map<String, OAuthService>,
     private val authUserRepository: AuthUserRepository,
     private val txAdvice: TxAdvice,
+    private val logger: Logger = Logging.getLogger(AuthService::class.java)
 ) {
 
     fun handleAuth(state : String, code : String) : String = Logging.loggingStopWatch(logger) { log ->
@@ -63,10 +65,5 @@ class AuthService(
     @Throws(CustomException::class)
     fun verifyToken(authorization : String)  {
         jwtProvider.decodeAccessTokenAfterVerifying(authorization.removePrefix("Bearer "))
-    }
-
-
-    companion object {
-        private val logger: Logger = Logging.getLogger(AuthService::class.java)
     }
 }

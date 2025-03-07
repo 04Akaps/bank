@@ -23,7 +23,8 @@ class BankService(
     private val redisClient: RedisClient,
     private val txAdvice: TxAdvice,
     private val userRepository: BankUserRepository,
-    private val bankAccountRepository: BankAccountRepository
+    private val bankAccountRepository: BankAccountRepository,
+    private val logger: Logger = Logging.getLogger(BankService::class.java)
 ) {
 
     fun createAccount(ulid : String) : Response<String> = Logging.loggingStopWatch(logger) { it
@@ -106,9 +107,5 @@ class BankService(
 
         val number = (1..8).joinToString("") { random().toString() }
         return "$bankCode-$section-$number"
-    }
-
-    companion object {
-        private val logger: Logger = Logging.getLogger(BankService::class.java)
     }
 }
