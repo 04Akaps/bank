@@ -1,27 +1,34 @@
 package org.example.types.message
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.apache.kafka.common.protocol.types.Field.Str
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.example.common.json.BigDecimalSerializer
+import org.example.common.json.LocalDateTimeSerializer
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
+@Serializable
 data class TransactionsMessage(
-    @JsonProperty("fromUlid")
-    private val fromUlid: String,
-    @JsonProperty("fromName")
-    private val fromName: String,
-    @JsonProperty("fromAccountID")
-    private val fromAccountID: String,
+    @SerialName("fromUlid")
+    val fromUlid: String,
+    @SerialName("fromName")
+    val fromName: String,
+    @SerialName("fromAccountID")
+    val fromAccountID: String,
 
-    @JsonProperty("toUlid")
-    private val toUlid: String,
-    @JsonProperty("toName")
-    private val toName: String,
-    @JsonProperty("toAccountID")
-    private val toAccountID: String,
+    @SerialName("toUlid")
+    val toUlid: String,
+    @SerialName("toName")
+    val toName: String,
+    @SerialName("toAccountID")
+    val toAccountID: String,
 
-    @JsonProperty("value")
-    private val value: BigDecimal,
-    @JsonProperty("time")
-    private val time : LocalDateTime
+    @SerialName("value")
+    @Serializable(with = BigDecimalSerializer::class)
+    val value: BigDecimal,
+
+    @SerialName("time")
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val time: LocalDateTime
 )

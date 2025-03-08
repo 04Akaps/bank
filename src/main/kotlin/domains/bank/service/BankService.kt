@@ -105,7 +105,7 @@ class BankService(
         val bankCode = "003"
         val section = "12"
 
-        val number = (1..8).joinToString("") { random().toString() }
+        val number = random().toString()
         return "$bankCode-$section-$number"
     }
 }

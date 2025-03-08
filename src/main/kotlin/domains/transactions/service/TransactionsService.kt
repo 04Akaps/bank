@@ -1,5 +1,7 @@
 package org.example.domains.transactions.service
 
+import kotlinx.serialization.builtins.serializer
+import org.example.common.JsonUtil.JsonUtil
 import org.example.common.cache.RedisClient
 import org.example.common.cache.RedisKeyProvider
 import org.example.common.exception.CustomException
@@ -50,8 +52,7 @@ class TransactionsService(
                 account.updatedAt = LocalDateTime.now()
                 transactionsAccountRepository.save(account)
 
-
-                kafkaProducer.sendMessage(Topics.Transactions.topic, TransactionsMessage(
+                val message = JsonUtil.encodeToJson(TransactionsMessage(
                     fromUlid = "0x0",
                     fromName = "0x0",
                     fromAccountID = "0x0",
@@ -60,7 +61,9 @@ class TransactionsService(
                     toAccountID = fromAccountId,
                     value = value,
                     time = LocalDateTime.now(),
-                ))
+                ), TransactionsMessage.serializer(),)
+
+                kafkaProducer.sendMessage(Topics.Transactions.topic, message)
 
                 ResponseProvider.success(DepositResponse(account.balance))
             }
@@ -79,10 +82,10 @@ class TransactionsService(
 
         redisClient.invokeWithMutex(key) {
             return@invokeWithMutex  txAdvice.run {
-                val fromAccount = transactionsAccountRepository.findByAccountID(fromAccountId)
+                val fromAccount = transactionsAccountRepository.findByUlid(fromAccountId)
                     ?: throw CustomException(ErrorCode.FailedToFindAccount, "출금 계좌를 찾을 수 없습니다: $fromAccountId")
 
-                val toAccount = transactionsAccountRepository.findByAccountID(toAccountId)
+                val toAccount = transactionsAccountRepository.findByUlid(toAccountId)
                     ?: throw CustomException(ErrorCode.FailedToFindAccount, "입금 계좌를 찾을 수 없습니다: $toAccountId")
 
                 if (fromAccount.user.ulid != fromUlid) {

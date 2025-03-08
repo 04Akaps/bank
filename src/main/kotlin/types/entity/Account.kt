@@ -24,7 +24,7 @@ data class Account(
     @Column(name = "balance", nullable = false, precision = 15, scale = 2)
     var balance: BigDecimal = BigDecimal.ZERO,
 
-    @Column(name = "account_number", length = 20, nullable = false, unique = true)
+    @Column(name = "account_number", length = 100, nullable = false, unique = true)
     val accountNumber: String,
 
     @Column(name = "is_deleted", nullable = false)

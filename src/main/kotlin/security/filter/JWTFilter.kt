@@ -37,7 +37,24 @@ class JWTFilter(
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 val token = authHeader.substring(7) // Bearer 이후의 값
-                isValidToken(token)
+
+                try {
+                    isValidToken(token)
+                } catch (e: CustomException) {
+                    response.status = HttpServletResponse.SC_UNAUTHORIZED
+                    response.contentType = "application/json;charset=UTF-8"
+
+                    val msg = e.getCodeInterface()
+                    val errorResponse = ResponseProvider.customError(
+                        code = msg.code,
+                        message = msg.message,
+                        null,
+                    )
+
+                    response.writer.write(ObjectMapper().writeValueAsString(errorResponse))
+                    response.writer.flush()
+                    return
+                }
             } else {
 
                 response.status = HttpServletResponse.SC_UNAUTHORIZED
@@ -51,6 +68,7 @@ class JWTFilter(
 
                 response.writer.write(ObjectMapper().writeValueAsString(errorResponse))
                 response.writer.flush()
+                return
             }
         }
 

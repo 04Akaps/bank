@@ -27,6 +27,7 @@ class KafkaProducer(
         future.whenComplete { result, ex ->
             if (ex == null) {
                 logger.info("메시지 발행 성공 - " +
+                        "message  : $message" +
                         "topic: ${result.recordMetadata.topic()}, " +
                         "partition: ${result.recordMetadata.partition()}, " +
                         "offset: ${result.recordMetadata.offset()}")

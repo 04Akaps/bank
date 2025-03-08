@@ -11,17 +11,19 @@ import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.support.serializer.JsonSerializer
 
 @Configuration
-class KafkaProducerConfig {
-
-    @Value("\${spring.kafka.bootstrap-servers}")
-    private lateinit var bootstrapServers: String
+class KafkaProducerConfig(
+    @Value("\${spring.kafka.bootstrap-servers}") private val bootstrapServers: String
+) {
 
     @Bean
     fun producerFactory(): ProducerFactory<String, Any> {
         val configProps = HashMap<String, Any>()
         configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
+        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+
+//            KotlinxSerializationSerializer::class.java
+////        VALUE_SERIALIZER_CLASS_CONFIG
         return DefaultKafkaProducerFactory(configProps)
     }
 
